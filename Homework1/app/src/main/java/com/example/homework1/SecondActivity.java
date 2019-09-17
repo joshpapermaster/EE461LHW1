@@ -15,6 +15,7 @@ public class SecondActivity extends AppCompatActivity {
     }
 
     public void doTemp() {
+
         TextView temp = (TextView) findViewById(R.id.temp);
         String lat = getIntent().getStringExtra("lat");
         String lng = getIntent().getStringExtra("lng");

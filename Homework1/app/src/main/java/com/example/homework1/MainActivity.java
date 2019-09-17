@@ -20,7 +20,7 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
     private TextView errorText;
     private Intent weatherIntent;
-
+    private RequestQueue queue;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,20 +29,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showWeatherPage(View view) {
-        weatherIntent = new Intent(this, SecondActivity.class);
+        weatherIntent = new Intent(this, MapsActivity.class);
         TextView addressText = (TextView) findViewById(R.id.addressText);
         String address = addressText.getText().toString();
         String formattedAddress = formatAddress(address);
         String googleReq = "https://maps.googleapis.com/maps/api/geocode/json?address=" + formattedAddress + "&key=AIzaSyAcCfwLekUhJ8VcwsHe5Qcj17wDpk7zw0A";
         String data = "";
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest myReq = new JsonObjectRequest(Method.GET,
+        queue = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonReq = new JsonObjectRequest(Method.GET,
                 googleReq,
                 null,
                 createSuccessListener(),
                 createErrorListener());
 
-        queue.add(myReq);
+        queue.add(jsonReq);
     }
 
     private Response.Listener<JSONObject> createSuccessListener() {
@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     weatherIntent.putExtra("lat", response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getString("lat"));
                     weatherIntent.putExtra("lng", response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getString("lng"));
+                    queue.stop();
                     startActivity(weatherIntent);
                 } catch (Exception e) {
                     System.out.println(e);
