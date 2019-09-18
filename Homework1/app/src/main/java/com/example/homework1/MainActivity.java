@@ -39,21 +39,27 @@ public class MainActivity extends AppCompatActivity {
         JsonObjectRequest jsonReq = new JsonObjectRequest(Method.GET,
                 googleReq,
                 null,
-                createSuccessListener(),
-                createErrorListener());
-
+                googleSuccessListener(),
+                googleErrorListener());
         queue.add(jsonReq);
     }
 
-    private Response.Listener<JSONObject> createSuccessListener() {
+    private Response.Listener<JSONObject> googleSuccessListener() {
         return new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    weatherIntent.putExtra("lat", response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getString("lat"));
-                    weatherIntent.putExtra("lng", response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getString("lng"));
-                    queue.stop();
-                    startActivity(weatherIntent);
+                    String lat = response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getString("lat");
+                    String lng = response.getJSONArray("results").getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getString("lng");
+                    weatherIntent.putExtra("lat", lat);
+                    weatherIntent.putExtra("lng", lng);
+                    String darkSkyReq = "https://api.darksky.net/forecast/d075ad88712cca7e99a699c4e5a700c3/" + lat + "," + lng;
+                    JsonObjectRequest jsonReq = new JsonObjectRequest(Method.GET,
+                            darkSkyReq,
+                            null,
+                            darkSuccessListener(),
+                            darkErrorListener());
+                    queue.add(jsonReq);
                 } catch (Exception e) {
                     System.out.println(e);
                     errorText.setText("Error, please try again");
@@ -62,7 +68,43 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private Response.ErrorListener createErrorListener() {
+    private Response.ErrorListener googleErrorListener() {
+        return new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println(error);
+                errorText.setText("Error, please try again");
+            }
+        };
+    }
+
+    private Response.Listener<JSONObject> darkSuccessListener() {
+        return new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response){
+                try{
+                    JSONObject current = response.getJSONObject("currently");
+                    String temp = current.getString("temperature");
+                    String humid = current.getString("humidity");
+                    String wind = current.getString("windSpeed");
+                    String precip = current.getString("precipProbability");
+
+                    weatherIntent.putExtra("temp", temp);
+                    weatherIntent.putExtra("humid", humid);
+                    weatherIntent.putExtra("wind", wind);
+                    weatherIntent.putExtra("precip", precip);
+                    startActivity(weatherIntent);
+                }
+                catch (Exception e){
+                    System.out.println(e);
+                    errorText.setText("Error, please try again");
+                }
+
+            }
+        };
+    }
+
+    private Response.ErrorListener darkErrorListener() {
         return new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {

@@ -3,6 +3,7 @@ package com.example.homework1;
 import androidx.fragment.app.FragmentActivity;
 
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,12 +17,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private String lat;
     private String lng;
+    private String temp;
+    private String humid;
+    private String wind;
+    private String precip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         lat = getIntent().getStringExtra("lat");
         lng = getIntent().getStringExtra("lng");
+        temp = getIntent().getStringExtra("temp");
+        humid = getIntent().getStringExtra("humid");
+        wind = getIntent().getStringExtra("wind");
+        precip = getIntent().getStringExtra("precip");
+
         System.out.println("lat: " + lat);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -47,11 +57,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double numLat = Double.parseDouble(lat);
         double numLng = Double.parseDouble(lng);
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(numLat, numLng);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng loc = new LatLng(numLat, numLng);
+        mMap.addMarker(new MarkerOptions().position(loc).title("Marked Location"));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15));
+        TextView tempView = (TextView) findViewById(R.id.tempNum);
+        tempView.setText(temp + "°");
+        TextView tempView2 = (TextView) findViewById(R.id.humidNum);
+        tempView2.setText(humid);
+        TextView tempView3 = (TextView) findViewById(R.id.windNum);
+        tempView3.setText(wind + " mph");
+        TextView tempView4 = (TextView) findViewById(R.id.precipNum);
+        tempView4.setText(precip + "%");
     }
-//
+
 //    @Override
 //    public void onResume() {
 //        super.onResume();
